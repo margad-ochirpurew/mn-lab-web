@@ -46,10 +46,16 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-sky-100 text-slate-900 font-sans pb-12">
-      {/* Навбар / Дээд цэс */}
-      <nav className="sticky top-0 z-50 border-b border-slate-200 bg-white/90 backdrop-blur-md px-6 py-4">
+      {/* Навбар / Дээд цэс - ЛОГО ТОМРУУЛСАН ХЭСЭГ */}
+      <nav className="sticky top-0 z-50 border-b border-slate-200 bg-white/90 backdrop-blur-md px-6 py-4 md:py-6">
         <div className="max-w-6xl mx-auto flex justify-between items-center">
-          <img src="/logo.png" alt="Logo" className="h-9 w-auto" />
+          <div className="flex items-center gap-3 md:gap-4">
+            <img src="/logo.png" alt="Logo" className="h-12 md:h-16 w-auto" />
+            <div className="flex flex-col">
+              <span className="font-black text-2xl md:text-3xl text-indigo-700 tracking-tight">M&N Research Lab</span>
+              <span className="text-[10px] md:text-xs uppercase tracking-[0.2em] text-slate-400 font-bold hidden sm:block">Edutech & Analysis</span>
+            </div>
+          </div>
         </div>
       </nav>
 

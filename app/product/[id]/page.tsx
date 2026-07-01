@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { doc, getDoc, collection, addDoc } from "firebase/firestore";
+import { doc, getDoc, collection, addDoc, query, where, getDocs } from "firebase/firestore";
 import { db } from "../../lib/firebase";
-import { ArrowLeft, CheckCircle, Copy } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 export default function ProductDetail() {
@@ -37,12 +37,35 @@ export default function ProductDetail() {
     fetchProduct();
   }, [id]);
 
-  // Төлбөрийн захиалга үүсгэх функц
+  // Төлбөрийн захиалга үүсгэх эсвэл өмнө нь төлсөн эсэхийг шалгах
   const handleCreateOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return alert("И-мэйл хаягаа оруулна уу!");
     
     try {
+      // 1. Эхлээд энэ имэйлээр өмнө нь төлбөр төлөөд баталгаажсан эсэхийг шалгах
+      const q = query(
+        collection(db, "orders"), 
+        where("userEmail", "==", email),
+        where("productId", "==", id)
+      );
+      const querySnapshot = await getDocs(q);
+      
+      let alreadyPaidOrderId = null;
+      querySnapshot.forEach((docSnap) => {
+        if (docSnap.data().status === "approved") {
+          alreadyPaidOrderId = docSnap.id;
+        }
+      });
+
+      // 2. Хэрэв өмнө нь төлбөр төлсөн бол шууд сорил руу оруулна
+      if (alreadyPaidOrderId) {
+        alert("Та өмнө нь төлбөр төлсөн байна. Шууд сорил руу шилжиж байна!");
+        router.push(`/quiz/${alreadyPaidOrderId}`);
+        return;
+      }
+
+      // 3. Хэрэв төлөөгүй бол шинээр захиалга үүсгэнэ
       const orderRef = await addDoc(collection(db, "orders"), {
         productId: id,
         productTitle: product.title,
@@ -51,7 +74,7 @@ export default function ProductDetail() {
         amount: product.price,
         createdAt: new Date().toISOString()
       });
-      setOrderId(orderRef.id); // Firebase-ийн үүсгэсэн ID-г авна
+      setOrderId(orderRef.id);
     } catch (error) {
       alert("Захиалга үүсгэхэд алдаа гарлаа.");
     }
@@ -68,7 +91,6 @@ export default function ProductDetail() {
         const status = orderSnap.data().status;
         setOrderStatus(status);
         if (status === "approved") {
-          // Хэрэв батлагдсан бол шууд сорилын хуудас руу үсэрнэ
           router.push(`/quiz/${orderId}`);
         } else {
           alert("Төлбөр хараахан батлагдаагүй байна. Та түр хүлээнэ үү эсвэл админтай холбогдоно уу.");
