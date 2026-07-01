@@ -41,9 +41,7 @@ export default function Home() {
       <nav className="sticky top-0 z-50 border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded bg-indigo-500 flex items-center justify-center">
-              <Code2 className="text-white" size={18} />
-            </div>
+            <img src="/logo.png" alt="Logo" className="w-10 h-10 object-contain" />
             <span className="text-xl font-bold tracking-tight">MN Lab</span>
           </div>
           <div className="hidden md:flex gap-8 text-sm font-medium text-zinc-400">
