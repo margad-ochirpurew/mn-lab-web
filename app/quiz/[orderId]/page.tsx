@@ -142,13 +142,14 @@ export default function QuizPage() {
             maintainAspectRatio: false,
             scales: {
               r: {
+                beginAtZero: true,
                 angleLines: { color: 'rgba(0, 0, 0, 0.05)' },
                 grid: { color: 'rgba(0, 0, 0, 0.05)' },
                 pointLabels: {
                   font: { size: 12, weight: 'bold' },
                   color: '#475569'
                 },
-                ticks: { display: false, beginAtZero: true }
+                ticks: { display: false }
               }
             },
             plugins: { legend: { display: false } }
@@ -183,7 +184,7 @@ export default function QuizPage() {
     if (currentIdx + 1 < questions.length) {
       setCurrentIdx(currentIdx + 1);
     } else {
-      const sorted = Object.entries(updatedScores).sort((a, b) => b[1] - a[1]);
+      const sorted = Object.entries(updatedScores).sort((a: any, b: any) => b[1] - a[1]);
       const top3Sliced = sorted.slice(0, 3);
       const code = top3Sliced.map(item => item[0]).join('');
       
