@@ -58,11 +58,16 @@ export default function ProductDetail() {
         }
       });
 
+      const isQuiz = product.category === "Сорил";
+      const isCV = product.title.toUpperCase().includes("CV");
+
       // 2. Хэрэв өмнө нь төлбөр төлсөн бол ангилалаас нь хамаарч зохих хуудас руу шилжүүлнэ
       if (alreadyPaidOrderId) {
         alert("Та өмнө нь төлбөр төлсөн байна. Шууд шилжиж байна!");
-        if (product.category === "Сорил") {
+        if (isQuiz) {
           router.push(`/quiz/${alreadyPaidOrderId}`);
+        } else if (isCV) {
+          router.push(`/cv-builder/${alreadyPaidOrderId}`);
         } else {
           router.push(`/download/${alreadyPaidOrderId}`);
         }
@@ -105,9 +110,14 @@ export default function ProductDetail() {
         const status = orderSnap.data().status;
         setOrderStatus(status);
         if (status === "approved") {
-          // Баталгаажсаны дараа Сорил бол quiz руу, бусад нь download хуудас руу үсрэнэ
-          if (product.category === "Сорил") {
+          const isQuiz = product.category === "Сорил";
+          const isCV = product.title.toUpperCase().includes("CV");
+          
+          // Баталгаажсаны дараа 3 өөр тийшээ чиглүүлнэ
+          if (isQuiz) {
             router.push(`/quiz/${orderId}`);
+          } else if (isCV) {
+            router.push(`/cv-builder/${orderId}`);
           } else {
             router.push(`/download/${orderId}`);
           }
@@ -126,6 +136,7 @@ export default function ProductDetail() {
   if (!product) return <div className="min-h-screen bg-sky-100 flex items-center justify-center font-bold">Бүтээгдэхүүн олдсонгүй.</div>;
 
   const isQuiz = product.category === "Сорил";
+  const isCV = product.title.toUpperCase().includes("CV");
 
   return (
     <div className="min-h-screen bg-sky-100 text-slate-900 p-6 md:p-12 font-sans">
@@ -151,11 +162,13 @@ export default function ProductDetail() {
               // Алхам 1: И-мэйл авах (Динамик тексттэй)
               <form onSubmit={handleCreateOrder} className="space-y-4">
                 <h3 className="text-lg font-bold text-slate-800">
-                  {isQuiz ? "Сорил эхлүүлэх үе шат" : "Бүтээгдэхүүн авах үе шат"}
+                  {isQuiz ? "Сорил эхлүүлэх үе шат" : isCV ? "Анкет үүсгэх үе шат" : "Бүтээгдэхүүн авах үе шат"}
                 </h3>
                 <p className="text-sm text-slate-600">
                   {isQuiz 
                     ? "Сорилын үр дүнг баталгаажуулах болон нэвтрэх эрх авах и-мэйл хаягаа оруулна уу."
+                    : isCV 
+                    ? "Анкет үүсгэх хуудас руу нэвтрэх и-мэйл хаягаа оруулна уу."
                     : "Бүтээгдэхүүн, файлыг хүлээж авах и-мэйл хаягаа оруулна уу."}
                 </p>
                 <div>
@@ -184,6 +197,8 @@ export default function ProductDetail() {
                   <p className="text-xs text-amber-600 mt-2">
                     {isQuiz 
                       ? "Энэ кодыг бичээгүй тохиолдолд сорил нээгдэхгүйг анхаарна уу."
+                      : isCV
+                      ? "Энэ кодыг бичээгүй тохиолдолд анкет бүтээгч нээгдэхгүйг анхаарна уу."
                       : "Энэ кодыг бичээгүй тохиолдолд файл илгээгдэхгүйг анхаарна уу."}
                   </p>
                 </div>
