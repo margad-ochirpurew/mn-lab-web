@@ -74,7 +74,18 @@ export default function ProductDetail() {
         amount: product.price,
         createdAt: new Date().toISOString()
       });
+      
       setOrderId(orderRef.id);
+
+      // --- ТЕЛЕГРАМ РУУ МЭДЭГДЭЛ ИЛГЭЭХ ХЭСЭГ ---
+      const botToken = "8923950514:AAGh1_hcsjzf4gE1JaFR4jZJx8hzNbfZ9G8";
+      const chatId = "8729205255";
+      const text = `🎉 ШИНЭ ЗАХИАЛГА!\n\nБараа: ${product.title}\nИ-мэйл: ${email}\nҮнэ: ${Number(product.price).toLocaleString()} ₮\nУтга: ${orderRef.id.substring(0, 6).toUpperCase()}`;
+
+      fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(text)}`)
+        .catch(err => console.error("Telegram алдаа:", err));
+      // -------------------------------------------
+
     } catch (error) {
       alert("Захиалга үүсгэхэд алдаа гарлаа.");
     }
