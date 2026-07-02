@@ -58,10 +58,14 @@ export default function ProductDetail() {
         }
       });
 
-      // 2. Хэрэв өмнө нь төлбөр төлсөн бол шууд сорил руу оруулна
+      // 2. Хэрэв өмнө нь төлбөр төлсөн бол ангилалаас нь хамаарч зохих хуудас руу шилжүүлнэ
       if (alreadyPaidOrderId) {
-        alert("Та өмнө нь төлбөр төлсөн байна. Шууд сорил руу шилжиж байна!");
-        router.push(`/quiz/${alreadyPaidOrderId}`);
+        alert("Та өмнө нь төлбөр төлсөн байна. Шууд шилжиж байна!");
+        if (product.category === "Сорил") {
+          router.push(`/quiz/${alreadyPaidOrderId}`);
+        } else {
+          router.push(`/download/${alreadyPaidOrderId}`);
+        }
         return;
       }
 
@@ -80,11 +84,10 @@ export default function ProductDetail() {
       // --- ТЕЛЕГРАМ РУУ МЭДЭГДЭЛ ИЛГЭЭХ ХЭСЭГ ---
       const botToken = "8923950514:AAGh1_hcsjzf4gE1JaFR4jZJx8hzNbfZ9G8";
       const chatId = "8729205255";
-      const text = `🎉 ШИНЭ ЗАХИАЛГА!\n\nБараа: ${product.title}\nИ-мэйл: ${email}\nҮнэ: ${Number(product.price).toLocaleString()} ₮\nУтга: ${orderRef.id.substring(0, 6).toUpperCase()}`;
+      const text = `🎉 ШИНЭ ЗАХИАЛГА!\n\nАнгилал: ${product.category}\nБараа: ${product.title}\nИ-мэйл: ${email}\nҮнэ: ${Number(product.price).toLocaleString()} ₮\nУтга: ${orderRef.id.substring(0, 6).toUpperCase()}`;
 
       fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(text)}`)
         .catch(err => console.error("Telegram алдаа:", err));
-      // -------------------------------------------
 
     } catch (error) {
       alert("Захиалга үүсгэхэд алдаа гарлаа.");
@@ -102,7 +105,12 @@ export default function ProductDetail() {
         const status = orderSnap.data().status;
         setOrderStatus(status);
         if (status === "approved") {
-          router.push(`/quiz/${orderId}`);
+          // Баталгаажсаны дараа Сорил бол quiz руу, бусад нь download хуудас руу үсрэнэ
+          if (product.category === "Сорил") {
+            router.push(`/quiz/${orderId}`);
+          } else {
+            router.push(`/download/${orderId}`);
+          }
         } else {
           alert("Төлбөр хараахан батлагдаагүй байна. Та түр хүлээнэ үү эсвэл админтай холбогдоно уу.");
         }
@@ -116,6 +124,8 @@ export default function ProductDetail() {
 
   if (loading) return <div className="min-h-screen bg-sky-100 flex items-center justify-center">Уншиж байна...</div>;
   if (!product) return <div className="min-h-screen bg-sky-100 flex items-center justify-center font-bold">Бүтээгдэхүүн олдсонгүй.</div>;
+
+  const isQuiz = product.category === "Сорил";
 
   return (
     <div className="min-h-screen bg-sky-100 text-slate-900 p-6 md:p-12 font-sans">
@@ -138,10 +148,16 @@ export default function ProductDetail() {
           {/* Баруун тал: Төлбөр ба Захиалгын хэсэг */}
           <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 flex flex-col justify-center">
             {!orderId ? (
-              // Алхам 1: И-мэйл авах
+              // Алхам 1: И-мэйл авах (Динамик тексттэй)
               <form onSubmit={handleCreateOrder} className="space-y-4">
-                <h3 className="text-lg font-bold text-slate-800">Сорил эхлүүлэх үе шат</h3>
-                <p className="text-sm text-slate-600">Сорилын үр дүнг баталгаажуулах болон нэвтрэх эрх авах и-мэйл хаягаа оруулна уу.</p>
+                <h3 className="text-lg font-bold text-slate-800">
+                  {isQuiz ? "Сорил эхлүүлэх үе шат" : "Бүтээгдэхүүн авах үе шат"}
+                </h3>
+                <p className="text-sm text-slate-600">
+                  {isQuiz 
+                    ? "Сорилын үр дүнг баталгаажуулах болон нэвтрэх эрх авах и-мэйл хаягаа оруулна уу."
+                    : "Бүтээгдэхүүн, файлыг хүлээж авах и-мэйл хаягаа оруулна уу."}
+                </p>
                 <div>
                   <label className="block text-xs font-semibold text-slate-500 mb-1">ТАНЫ И-МЭЙЛ ХАЯГ</label>
                   <input
@@ -165,13 +181,17 @@ export default function ProductDetail() {
                   <div className="flex items-center justify-center gap-2 bg-white px-4 py-2 rounded-lg border border-amber-300 font-mono text-lg font-bold text-slate-800 selection:bg-amber-200">
                     {orderId.substring(0, 6).toUpperCase()}
                   </div>
-                  <p className="text-xs text-amber-600 mt-2">Энэ кодыг бичээгүй тохиолдолд сорил нээгдэхгүйг анхаарна уу.</p>
+                  <p className="text-xs text-amber-600 mt-2">
+                    {isQuiz 
+                      ? "Энэ кодыг бичээгүй тохиолдолд сорил нээгдэхгүйг анхаарна уу."
+                      : "Энэ кодыг бичээгүй тохиолдолд файл илгээгдэхгүйг анхаарна уу."}
+                  </p>
                 </div>
 
                 <div className="space-y-2 border-t border-slate-200 pt-4">
                   <div className="flex justify-between text-sm"><span className="text-slate-500">Хүлээн авах банк:</span><span className="font-semibold">Хаан Банк</span></div>
                   <div className="flex justify-between text-sm"><span className="text-slate-500">Дансны дугаар:</span><span className="font-semibold font-mono">5020XXXXXX (Дансаа бичээрэй)</span></div>
-                  <div className="flex justify-between text-sm"><span className="text-slate-500">Хүлээн авагч:</span><span className="font-semibold">Таны Нэр</span></div>
+                  <div className="flex justify-between text-sm"><span className="text-slate-500">Хүлээн авагч:</span><span className="font-semibold">M&N Research Lab</span></div>
                   <div className="flex justify-between text-sm"><span className="text-slate-500">Шилжүүлэх дүн:</span><span className="font-bold text-indigo-600">{Number(product.price).toLocaleString()} ₮</span></div>
                 </div>
 
